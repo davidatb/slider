@@ -1,16 +1,44 @@
+class IndexForSiblings{
+    static get(el){
+        let children = el.parentNode.children;
+        for(var i = 0; i < children.length; i++){
+            let child = children[i];
+            if(child == el) return i;
+        }
+    }
+}
 class Slider{
-    constructor(selector){
+    constructor(selector,movimiento=true){
         this.move = this.move.bind(this);
+        this.moveByButton = this.moveByButton.bind(this);
         this.slider = document.querySelector(selector);
         this.itemsCount = document.querySelectorAll(".container > *").length;
-        
         this.interval = null;
         this.contador = 0;
+        this.movimiento = movimiento;
         this.start();
         this.buildControls();
+        this.bindEvents();
     }
     start() {
+        if(!this.movimiento) return;
         this.interval = window.setInterval(this.move,2000);
+    }
+    restart() {
+        if(this.interval) window.clearInterval(this.interval);
+        this.start();
+    }
+    bindEvents() {
+        this.slider.querySelectorAll(".controls li")
+        .forEach(item =>{
+            item.addEventListener("click",this.moveByButton)
+        });
+    }
+    moveByButton(ev){
+        let index = IndexForSiblings.get(ev.currentTarget)
+        this.contador = index;
+        this.moveTo(index);
+        this.restart();
     }
     buildControls(){
         for (var i = 0; i < this.itemsCount; i++){ 
@@ -37,5 +65,5 @@ class Slider{
 }
 
 (function(){
-    new Slider(".slider");
+    new Slider(".slider", false);
 })();
